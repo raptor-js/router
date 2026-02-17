@@ -1,7 +1,8 @@
-// Copyright 2026, @briward. All rights reserved. MIT license.
+// Copyright 2026, Raptor. All rights reserved. MIT license.
 
 import Route from "./src/route.ts";
 import Router from "./src/router.ts";
+import helper from "./src/helper.ts";
 import RouteGroup from "./src/route-group.ts";
 import { HttpMethod } from "./src/enums/http-method.ts";
 
@@ -13,3 +14,5 @@ export type { TreeMatchResult } from "./src/interfaces/tree-match-result.ts";
 export type { RouteGroupOptions } from "./src/interfaces/route-group-options.ts";
 
 export { HttpMethod, Route, RouteGroup, Router };
+
+export default helper;

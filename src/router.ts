@@ -5,6 +5,7 @@ import type Route from "./route.ts";
 import type RouteGroup from "./route-group.ts";
 import HttpMethod from "./enums/http-method.ts";
 import normalisePath from "./utilities/normalise-path.ts";
+import type { RouterOptions } from "./interfaces/router-options.ts";
 import type { TreeMatchResult } from "./interfaces/tree-match-result.ts";
 
 export default class Router {
@@ -19,50 +20,72 @@ export default class Router {
   private maxCacheSize = 1000;
 
   /**
+   * Options which can be used to change router functionality.
+   */
+  private options: RouterOptions;
+
+  /**
    * The available trees for the router, by method.
    */
   private trees: Map<HttpMethod, Tree> = new Map();
 
   /**
+   * Initialise the router.
+   *
+   * @constructor
+   */
+  constructor(options?: RouterOptions) {
+    this.options = {
+      ...this.initialiseDefaultOptions(),
+      ...options,
+    };
+  }
+
+  /**
    * Add one or more routes to the router.
    *
    * @param routes One or many routes, either directly or via group(s).
-   * @returns void
+   *
+   * @returns The router instance.
    */
-  public add(routes: Route | RouteGroup | Route[] | RouteGroup[]): void {
+  public add(routes: Route | RouteGroup | Route[] | RouteGroup[]): this {
     if (Array.isArray(routes) && this.isRoute(routes[0])) {
       this.addRoutes(routes as Route[]);
 
-      return;
+      return this;
     }
 
     if (Array.isArray(routes) && this.isRouteGroup(routes[0])) {
       this.addRouteGroups(routes as RouteGroup[]);
 
-      return;
+      return this;
     }
 
     if (Array.isArray(routes)) {
-      return;
+      return this;
     }
 
     if (this.isRoute(routes)) {
       this.addRoute(routes as Route);
 
-      return;
+      return this;
     }
 
     if (this.isRouteGroup(routes)) {
       this.addRouteGroup(routes as RouteGroup);
     }
+
+    return this;
   }
 
   /**
    * Add a single route to the router.
    *
    * @param route A single route definition.
+   *
+   * @returns The router instance.
    */
-  public addRoute(route: Route): void {
+  public addRoute(route: Route): this {
     let config = route.options.method;
 
     if (!config) {
@@ -76,41 +99,55 @@ export default class Router {
         this.trees.get(method)!.add(route);
       });
 
-      return;
+      return this;
     }
 
     this.createTreeForMethod(config);
 
     this.trees.get(config)!.add(route);
+
+    return this;
   }
 
   /**
    * Add one or more routes to the router.
    *
    * @param routes One or more route definitions.
+   *
+   * @returns The router instance.
    */
-  public addRoutes(routes: Route[]): void {
+  public addRoutes(routes: Route[]): this {
     routes.forEach((route) => this.addRoute(route));
+
+    return this;
   }
 
   /**
    * Add a single route group to the router.
    *
    * @param group A single group route definition.
+   *
+   * @returns The router instance.
    */
-  public addRouteGroup(group: RouteGroup): void {
+  public addRouteGroup(group: RouteGroup): this {
     const { routes } = group;
 
     this.addRoutes(routes);
+
+    return this;
   }
 
   /**
    * Add one or more route groups to the router.
    *
    * @param groups One or more route definitions.
+   *
+   * @returns The router instance.
    */
-  public addRouteGroups(groups: RouteGroup[]): void {
+  public addRouteGroups(groups: RouteGroup[]): this {
     groups.forEach((group) => this.addRouteGroup(group));
+
+    return this;
   }
 
   /**
@@ -133,7 +170,7 @@ export default class Router {
    */
   public handleRouting(
     context: Context,
-    _next: CallableFunction,
+    next: CallableFunction,
   ): Promise<unknown> {
     const { request } = context;
 
@@ -157,7 +194,7 @@ export default class Router {
         ?.match(pathname);
     }
 
-    if (!match) {
+    if (!match && this.options?.throwNotFound) {
       throw new NotFound();
     }
 
@@ -168,14 +205,29 @@ export default class Router {
       this.cache.delete(firstKey as string);
     }
 
-    // Cache the result for later.
-    this.cache.set(cacheKey, match);
+    if (match) {
+      // Cache the result for later.
+      this.cache.set(cacheKey, match);
 
-    // Set the params as part of the context request object.
-    context.request.params = match.params;
+      // Set the params as part of the context request object.
+      context.request.params = match.params;
 
-    // Execute the route's middleware, then finally the handler.
-    return this.executeRouteMiddleware(match, context, 0);
+      // Execute the route's middleware, then finally the handler.
+      return this.executeRouteMiddleware(match, context, 0);
+    }
+
+    return next();
+  }
+
+  /**
+   * Initialises the default router options.
+   *
+   * @returns The default router options.
+   */
+  public initialiseDefaultOptions(): RouterOptions {
+    return {
+      throwNotFound: true,
+    };
   }
 
   /**
