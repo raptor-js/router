@@ -2,10 +2,10 @@ import { type Context, type Middleware, NotFound } from "@raptor/framework";
 
 import Tree from "./tree.ts";
 import type Route from "./route.ts";
+import type { Config } from "./config.ts";
 import type RouteGroup from "./route-group.ts";
 import HttpMethod from "./enums/http-method.ts";
 import normalisePath from "./utilities/normalise-path.ts";
-import type { RouterOptions } from "./interfaces/router-options.ts";
 import type { TreeMatchResult } from "./interfaces/tree-match-result.ts";
 
 export default class Router {
@@ -20,9 +20,9 @@ export default class Router {
   private maxCacheSize = 1000;
 
   /**
-   * Options which can be used to change router functionality.
+   * Configuration which can be used to change router functionality.
    */
-  private options: RouterOptions;
+  private config: Config;
 
   /**
    * The available trees for the router, by method.
@@ -34,11 +34,15 @@ export default class Router {
    *
    * @constructor
    */
-  constructor(options?: RouterOptions) {
-    this.options = {
-      ...this.initialiseDefaultOptions(),
-      ...options,
+  constructor(config?: Config) {
+    this.config = {
+      ...this.initialiseDefaultConfig(),
+      ...config,
     };
+
+    if (this.config.routes?.length) {
+      this.config.routes.forEach((route) => this.add(route));
+    }
   }
 
   /**
@@ -194,7 +198,7 @@ export default class Router {
         ?.match(pathname);
     }
 
-    if (!match && this.options?.throwNotFound) {
+    if (!match && this.config?.throwNotFound) {
       throw new NotFound();
     }
 
@@ -224,9 +228,10 @@ export default class Router {
    *
    * @returns The default router options.
    */
-  public initialiseDefaultOptions(): RouterOptions {
+  public initialiseDefaultConfig(): Config {
     return {
       throwNotFound: true,
+      routes: [],
     };
   }
 

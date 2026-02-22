@@ -13,6 +13,8 @@ export type { RouteOptions } from "./src/interfaces/route-options.ts";
 export type { TreeMatchResult } from "./src/interfaces/tree-match-result.ts";
 export type { RouteGroupOptions } from "./src/interfaces/route-group-options.ts";
 
+export type { Config } from "./src/config.ts";
+
 export { HttpMethod, Route, RouteGroup, Router };
 
 export default helper;
