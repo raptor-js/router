@@ -1,10 +1,14 @@
-import { type Context, type Middleware, NotFound } from "@raptor/framework";
+import {
+  type Context,
+  HttpMethod,
+  type Middleware,
+  NotFound,
+} from "@raptor/framework";
 
 import Tree from "./tree.ts";
 import type Route from "./route.ts";
 import type { Config } from "./config.ts";
 import type RouteGroup from "./route-group.ts";
-import HttpMethod from "./enums/http-method.ts";
 import normalisePath from "./utilities/normalise-path.ts";
 import type { TreeMatchResult } from "./interfaces/tree-match-result.ts";
 

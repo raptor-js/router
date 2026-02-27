@@ -1,5 +1,5 @@
-import type { Middleware } from "@raptor/framework";
-import type HttpMethod from "../enums/http-method.ts";
+import type { HttpMethod, Middleware } from "@raptor/framework";
+
 import type { RouteHandler } from "./route-handler.ts";
 
 /**
