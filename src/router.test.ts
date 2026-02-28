@@ -1,5 +1,5 @@
 import { assertEquals } from "@std/assert";
-import { type Context, HttpMethod, Kernel } from "@raptor/framework";
+import { type Context, HttpMethod, Kernel } from "@raptor/kernel";
 
 import Route from "./route.ts";
 import Router from "./router.ts";
@@ -28,6 +28,206 @@ Deno.test("test router accepts new route", async () => {
 
   assertEquals(response.status, 200);
   assertEquals(await response.json(), { success: true });
+});
+
+Deno.test("test router accepts new route from config", async () => {
+  const kernel = new Kernel();
+  const router = new Router();
+
+  router.add({
+    name: "test.route",
+    pathname: "/test-route",
+    method: HttpMethod.GET,
+    handler: () => ({ success: true }),
+  });
+
+  kernel.add(router.handle);
+
+  const response = await kernel.respond(
+    new Request(`${APP_URL}/test-route`),
+  );
+
+  assertEquals(response.status, 200);
+  assertEquals(await response.json(), { success: true });
+});
+
+Deno.test("test router accepts new route group from config with prefix", async () => {
+  const kernel = new Kernel();
+  const router = new Router();
+
+  router.add({
+    prefix: "/api",
+    routes: [
+      {
+        name: "test.route",
+        pathname: "/test-route",
+        method: HttpMethod.GET,
+        handler: () => ({ success: true }),
+      },
+    ],
+  });
+
+  kernel.add(router.handle);
+
+  const response = await kernel.respond(
+    new Request(`${APP_URL}/api/test-route`),
+  );
+
+  assertEquals(response.status, 200);
+  assertEquals(await response.json(), { success: true });
+});
+
+Deno.test("test router accepts new route group from config with middleware", async () => {
+  const kernel = new Kernel();
+  const router = new Router();
+
+  router.add({
+    prefix: "/api",
+    middleware: (context: Context, next: CallableFunction) => {
+      context.response.headers.set("Content-Type", "application/hal+json");
+
+      return next();
+    },
+    routes: [
+      {
+        name: "test.route",
+        pathname: "/test-route",
+        method: HttpMethod.GET,
+        handler: () => ({ success: true }),
+      },
+    ],
+  });
+
+  kernel.add(router.handle);
+
+  const response = await kernel.respond(
+    new Request(`${APP_URL}/api/test-route`),
+  );
+
+  assertEquals(response.headers.get("Content-Type"), "application/hal+json");
+});
+
+Deno.test("test router accepts new route group from config with multiple middleware", async () => {
+  const kernel = new Kernel();
+  const router = new Router();
+
+  router.add({
+    prefix: "/api",
+    middleware: [
+      (context: Context, next: CallableFunction) => {
+        context.response.headers.set("Content-Type", "application/hal+json");
+
+        return next();
+      },
+      (context: Context, next: CallableFunction) => {
+        context.response.headers.set("Content-Type", "application/custom+json");
+
+        return next();
+      },
+    ],
+    routes: [
+      {
+        name: "test.route",
+        pathname: "/test-route",
+        method: HttpMethod.GET,
+        handler: () => ({ success: true }),
+      },
+    ],
+  });
+
+  kernel.add(router.handle);
+
+  const response = await kernel.respond(
+    new Request(`${APP_URL}/api/test-route`),
+  );
+
+  assertEquals(response.headers.get("Content-Type"), "application/custom+json");
+});
+
+Deno.test("test router accepts routes via constructor config", async () => {
+  const kernel = new Kernel();
+
+  const router = new Router({
+    routes: [
+      new Route({
+        name: "test.route",
+        pathname: "/test-route",
+        method: HttpMethod.GET,
+        handler: () => ({ success: true }),
+      }),
+    ],
+  });
+
+  kernel.add(router.handle);
+
+  const response = await kernel.respond(
+    new Request(`${APP_URL}/test-route`),
+  );
+
+  assertEquals(response.status, 200);
+  assertEquals(await response.json(), { success: true });
+});
+
+Deno.test("test router accepts route group with routes pre-loaded via config", async () => {
+  const kernel = new Kernel();
+  const router = new Router();
+
+  const group = new RouteGroup({
+    name: "api.",
+    prefix: "/api",
+    routes: [
+      {
+        name: "index",
+        pathname: "/test-route",
+        method: HttpMethod.GET,
+        handler: () => ({ success: true }),
+      },
+    ],
+  });
+
+  router.add(group);
+
+  kernel.add(router.handle);
+
+  const response = await kernel.respond(
+    new Request(`${APP_URL}/api/test-route`),
+  );
+
+  assertEquals(response.status, 200);
+  assertEquals(await response.json(), { success: true });
+});
+
+Deno.test("test router accepts mixed array of route configs and instances", async () => {
+  const kernel = new Kernel();
+  const router = new Router();
+
+  router.add([
+    new Route({
+      name: "test.route_1",
+      pathname: "/test-route-1",
+      method: HttpMethod.GET,
+      handler: () => ({ route: 1 }),
+    }),
+    {
+      name: "test.route_2",
+      pathname: "/test-route-2",
+      method: HttpMethod.GET,
+      handler: () => ({ route: 2 }),
+    },
+  ]);
+
+  kernel.add(router.handle);
+
+  const response1 = await kernel.respond(
+    new Request(`${APP_URL}/test-route-1`),
+  );
+
+  const response2 = await kernel.respond(
+    new Request(`${APP_URL}/test-route-2`),
+  );
+
+  assertEquals(await response1.json(), { route: 1 });
+  assertEquals(await response2.json(), { route: 2 });
 });
 
 Deno.test("test router accepts new routes", async () => {

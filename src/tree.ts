@@ -1,5 +1,5 @@
 import type Route from "./route.ts";
-import type { Middleware } from "@raptor/framework";
+import type { Middleware } from "@raptor/kernel";
 import type { TreeNode } from "./interfaces/tree-node.ts";
 import type { TreeMatchResult } from "./interfaces/tree-match-result.ts";
 
@@ -14,6 +14,15 @@ export default class Tree {
   };
 
   /**
+   * Get the root tree node.
+   *
+   * @returns The root tree node.
+   */
+  public getRootNode(): TreeNode {
+    return this.root;
+  }
+
+  /**
    * Add a route to the tree.
    *
    * @param route The route to add to the tree.
@@ -21,7 +30,7 @@ export default class Tree {
   public add(route: Route) {
     let node = this.root;
 
-    const segments = route.options.pathname.split("/").filter((s) => s);
+    const segments = route.config.pathname.split("/").filter((s) => s);
 
     for (const segment of segments) {
       let child = node.children.find((c) => {
@@ -50,10 +59,10 @@ export default class Tree {
       node = child;
     }
 
-    node.handler = route.options.handler;
+    node.handler = route.config.handler;
 
     node.middleware = this.normaliseMiddleware(
-      route.options.middleware,
+      route.config.middleware,
     );
   }
 

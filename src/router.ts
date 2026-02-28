@@ -3,14 +3,16 @@ import {
   HttpMethod,
   type Middleware,
   NotFound,
-} from "@raptor/framework";
+} from "@raptor/kernel";
 
 import Tree from "./tree.ts";
-import type Route from "./route.ts";
+import Route from "./route.ts";
 import type { Config } from "./config.ts";
-import type RouteGroup from "./route-group.ts";
+import RouteGroup from "./route-group.ts";
 import normalisePath from "./utilities/normalise-path.ts";
+import type { RouteConfig } from "./interfaces/route-config.ts";
 import type { TreeMatchResult } from "./interfaces/tree-match-result.ts";
+import type { RouteGroupConfig } from "./interfaces/route-group-config.ts";
 
 export default class Router {
   /**
@@ -54,47 +56,74 @@ export default class Router {
    *
    * @param routes One or many routes, either directly or via group(s).
    *
-   * @returns The router instance.
+   * @returns void
    */
-  public add(routes: Route | RouteGroup | Route[] | RouteGroup[]): this {
+  public add(
+    routes:
+      | Route
+      | RouteGroup
+      | RouteConfig
+      | RouteGroupConfig
+      | Route[]
+      | RouteGroup[]
+      | (Route | RouteConfig)[],
+  ): void {
+    if (this.isRouteConfig(routes)) {
+      this.addRoute(new Route(routes as RouteConfig));
+
+      return;
+    }
+
+    if (this.isRouteGroupConfig(routes)) {
+      this.addRouteGroup(new RouteGroup(routes as RouteGroupConfig));
+
+      return;
+    }
+
+    if (Array.isArray(routes) && routes.some((r) => this.isRouteConfig(r))) {
+      routes.forEach((route) =>
+        this.isRouteConfig(route)
+          ? this.addRoute(new Route(route as RouteConfig))
+          : this.addRoute(route as Route)
+      );
+
+      return;
+    }
+
     if (Array.isArray(routes) && this.isRoute(routes[0])) {
       this.addRoutes(routes as Route[]);
 
-      return this;
+      return;
     }
 
     if (Array.isArray(routes) && this.isRouteGroup(routes[0])) {
       this.addRouteGroups(routes as RouteGroup[]);
 
-      return this;
+      return;
     }
 
     if (Array.isArray(routes)) {
-      return this;
+      return;
     }
 
     if (this.isRoute(routes)) {
       this.addRoute(routes as Route);
 
-      return this;
+      return;
     }
 
     if (this.isRouteGroup(routes)) {
       this.addRouteGroup(routes as RouteGroup);
     }
-
-    return this;
   }
 
   /**
    * Add a single route to the router.
    *
    * @param route A single route definition.
-   *
-   * @returns The router instance.
    */
-  public addRoute(route: Route): this {
-    let config = route.options.method;
+  public addRoute(route: Route): void {
+    let config = route.config.method;
 
     if (!config) {
       config = HttpMethod.GET;
@@ -107,55 +136,41 @@ export default class Router {
         this.trees.get(method)!.add(route);
       });
 
-      return this;
+      return;
     }
 
     this.createTreeForMethod(config);
 
     this.trees.get(config)!.add(route);
-
-    return this;
   }
 
   /**
    * Add one or more routes to the router.
    *
    * @param routes One or more route definitions.
-   *
-   * @returns The router instance.
    */
-  public addRoutes(routes: Route[]): this {
+  public addRoutes(routes: Route[]): void {
     routes.forEach((route) => this.addRoute(route));
-
-    return this;
   }
 
   /**
    * Add a single route group to the router.
    *
    * @param group A single group route definition.
-   *
-   * @returns The router instance.
    */
-  public addRouteGroup(group: RouteGroup): this {
+  public addRouteGroup(group: RouteGroup): void {
     const { routes } = group;
 
     this.addRoutes(routes);
-
-    return this;
   }
 
   /**
    * Add one or more route groups to the router.
    *
    * @param groups One or more route definitions.
-   *
-   * @returns The router instance.
    */
-  public addRouteGroups(groups: RouteGroup[]): this {
+  public addRouteGroups(groups: RouteGroup[]): void {
     groups.forEach((group) => this.addRouteGroup(group));
-
-    return this;
   }
 
   /**
@@ -253,21 +268,105 @@ export default class Router {
   /**
    * Check if an object is a route.
    *
-   * @param item A route or route group.
+   * @param item A route, route group, or their config equivalents.
+   *
    * @returns Whether the argument is a route object.
    */
-  private isRoute(item: Route | RouteGroup): boolean {
-    return "method" in item.options;
+  private isRoute(
+    item:
+      | Route
+      | RouteGroup
+      | RouteConfig
+      | RouteGroupConfig
+      | Route[]
+      | RouteGroup[]
+      | (Route | RouteConfig)[],
+  ): item is Route {
+    if (Array.isArray(item)) {
+      return false;
+    }
+
+    return "config" in item && "method" in item.config;
   }
 
   /**
    * Check if an object is a route group.
    *
-   * @param item A route or route group.
+   * @param item A route, route group, or their config equivalents.
+   *
    * @returns Whether the argument is a route group object.
    */
-  private isRouteGroup(item: Route | RouteGroup): boolean {
+  private isRouteGroup(
+    item:
+      | Route
+      | RouteGroup
+      | RouteConfig
+      | RouteGroupConfig
+      | Route[]
+      | RouteGroup[]
+      | (Route | RouteConfig)[],
+  ): item is RouteGroup {
+    if (Array.isArray(item)) {
+      return false;
+    }
+
     return "routes" in item;
+  }
+
+  /**
+   * Check if an object is a route configuration.
+   *
+   * @param item A potential route configuration.
+   *
+   * @returns Whether the argument is a route config object.
+   */
+  private isRouteConfig(
+    item:
+      | Route
+      | RouteGroup
+      | RouteConfig
+      | RouteGroupConfig
+      | Route[]
+      | RouteGroup[]
+      | (Route | RouteConfig)[],
+  ): item is RouteConfig {
+    if (Array.isArray(item)) {
+      return false;
+    }
+
+    return (
+      "pathname" in item &&
+      !("config" in item) &&
+      !("routes" in item)
+    );
+  }
+
+  /**
+   * Check if an object is a route group configuration.
+   *
+   * @param item A potential route group configuration.
+   *
+   * @returns Whether the argument is a route group config object.
+   */
+  private isRouteGroupConfig(
+    item:
+      | Route
+      | RouteGroup
+      | RouteConfig
+      | RouteGroupConfig
+      | Route[]
+      | RouteGroup[]
+      | (Route | RouteConfig)[],
+  ): item is RouteGroupConfig {
+    if (Array.isArray(item)) {
+      return false;
+    }
+
+    return (
+      "routes" in item &&
+      !("pathname" in item) &&
+      !("config" in item)
+    );
   }
 
   /**
@@ -276,6 +375,7 @@ export default class Router {
    * @param route The route being processed.
    * @param context The context from the request.
    * @param index Current middleware index.
+   *
    * @returns The response from handler or middleware.
    */
   private executeRouteMiddleware(
@@ -283,10 +383,13 @@ export default class Router {
     context: Context,
     index: number,
   ): Promise<unknown> {
-    const middleware = match.middleware;
+    const config = match.middleware;
+
+    // Simplify by always using an array.
+    const middleware = !config ? [] : Array.isArray(config) ? config : [config];
 
     // If we've executed all middleware, call the route handler.
-    if (!middleware || index >= middleware.length) {
+    if (index >= middleware.length) {
       return Promise.resolve(match.handler(context));
     }
 
@@ -303,6 +406,7 @@ export default class Router {
    * Get the pathname from the URL.
    *
    * @param url The URL of the request.
+   *
    * @returns The pathname extracted from the URL.
    */
   private getPathnameFromUrl(url: string): string {

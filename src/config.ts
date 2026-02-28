@@ -1,5 +1,7 @@
 import type Route from "./route.ts";
 import type RouteGroup from "./route-group.ts";
+import type { RouteConfig } from "./interfaces/route-config.ts";
+import type { RouteGroupConfig } from "./interfaces/route-group-config.ts";
 
 export interface Config {
   /**
@@ -12,5 +14,5 @@ export interface Config {
   /**
    * The routes and route groups available to the application.
    */
-  routes?: (Route | RouteGroup)[];
+  routes?: (RouteConfig | RouteGroupConfig | Route | RouteGroup)[];
 }

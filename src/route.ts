@@ -1,6 +1,6 @@
-import { HttpMethod } from "@raptor/framework";
+import { HttpMethod } from "@raptor/kernel";
 import type { Params } from "./interfaces/params.ts";
-import type { RouteOptions } from "./interfaces/route-options.ts";
+import type { RouteConfig } from "./interfaces/route-config.ts";
 
 /**
  * The route definition.
@@ -9,7 +9,7 @@ export default class Route {
   /**
    * A configurable option set for a route.
    */
-  options: RouteOptions;
+  config: RouteConfig;
 
   /**
    * Stored compiled pattern for router.
@@ -30,14 +30,14 @@ export default class Route {
    * Initialise a route object.
    *
    * @constructor
-   * @param options The options for the route.
+   * @param config The options for the route.
    */
-  constructor(options: RouteOptions) {
-    this.options = {
+  constructor(config: RouteConfig) {
+    this.config = {
       ...{
         method: HttpMethod.GET,
       },
-      ...options,
+      ...config,
     };
 
     this.pattern = this.buildPattern();
@@ -86,8 +86,8 @@ export default class Route {
    * @returns Boolean indicating whether the route has dynamic segments.
    */
   private hasDynamicSegments(): boolean {
-    return this.options.pathname.includes(":") ||
-      this.options.pathname.includes("*");
+    return this.config.pathname.includes(":") ||
+      this.config.pathname.includes("*");
   }
 
   /**
@@ -97,7 +97,7 @@ export default class Route {
    */
   private buildPattern(): URLPattern {
     return new URLPattern({
-      pathname: this.options.pathname,
+      pathname: this.config.pathname,
     });
   }
 
@@ -107,7 +107,7 @@ export default class Route {
   private buildParamRegex(): void {
     const segments: string[] = [];
 
-    const regexPattern = this.options.pathname
+    const regexPattern = this.config.pathname
       .replace(/\/:([^\/]+)/g, (_match, name) => {
         segments.push(name);
         return "/([^/]+)";

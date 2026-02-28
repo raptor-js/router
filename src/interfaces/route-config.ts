@@ -1,11 +1,11 @@
-import type { HttpMethod, Middleware } from "@raptor/framework";
+import type { HttpMethod, Middleware } from "@raptor/kernel";
 
 import type { RouteHandler } from "./route-handler.ts";
 
 /**
- * The route options definition.
+ * The route configuration options definition.
  */
-export interface RouteOptions {
+export interface RouteConfig {
   /**
    * The name of the route.
    */
