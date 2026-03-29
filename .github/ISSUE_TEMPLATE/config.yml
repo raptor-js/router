@@ -4,5 +4,5 @@ contact_links:
     url: https://jsr.io/@raptor/router
     about: View the package on JSR
   - name: Security Issue
-    url: https://github.com/raptor-http/router/security/advisories/new
+    url: https://github.com/raptor-js/router/security/advisories/new
     about: Report a security vulnerability privately

@@ -51,6 +51,76 @@ Deno.test("test router accepts new route from config", async () => {
   assertEquals(await response.json(), { success: true });
 });
 
+Deno.test("test router accepts new route from ergonomic methods", async () => {
+  const kernel = new Kernel();
+  const router = new Router();
+
+  router.get("/get-route", () => ({
+    success: true,
+  }));
+
+  router.post("/post-route", () => ({
+    success: true,
+  }));
+
+  router.put("/put-route", () => ({
+    success: true,
+  }));
+
+  router.patch("/patch-route", () => ({
+    success: true,
+  }));
+
+  router.delete("/delete-route", () => ({
+    success: true,
+  }));
+
+  kernel.add(router.handle);
+
+  const getResponse = await kernel.respond(
+    new Request(`${APP_URL}/get-route`),
+  );
+
+  const postResponse = await kernel.respond(
+    new Request(`${APP_URL}/post-route`, {
+      method: "POST",
+    }),
+  );
+
+  const putResponse = await kernel.respond(
+    new Request(`${APP_URL}/put-route`, {
+      method: "PUT",
+    }),
+  );
+
+  const deleteResponse = await kernel.respond(
+    new Request(`${APP_URL}/delete-route`, {
+      method: "DELETE",
+    }),
+  );
+
+  const patchResponse = await kernel.respond(
+    new Request(`${APP_URL}/patch-route`, {
+      method: "PATCH",
+    }),
+  );
+
+  assertEquals(getResponse.status, 200);
+  assertEquals(await getResponse.json(), { success: true });
+
+  assertEquals(postResponse.status, 200);
+  assertEquals(await postResponse.json(), { success: true });
+
+  assertEquals(putResponse.status, 200);
+  assertEquals(await putResponse.json(), { success: true });
+
+  assertEquals(patchResponse.status, 200);
+  assertEquals(await patchResponse.json(), { success: true });
+
+  assertEquals(deleteResponse.status, 200);
+  assertEquals(await deleteResponse.json(), { success: true });
+});
+
 Deno.test("test router accepts new route group from config with prefix", async () => {
   const kernel = new Kernel();
   const router = new Router();

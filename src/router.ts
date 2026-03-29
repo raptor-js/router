@@ -11,6 +11,7 @@ import type { Config } from "./config.ts";
 import RouteGroup from "./route-group.ts";
 import normalisePath from "./utilities/normalise-path.ts";
 import type { RouteConfig } from "./interfaces/route-config.ts";
+import type { RouteHandler } from "./interfaces/route-handler.ts";
 import type { TreeMatchResult } from "./interfaces/tree-match-result.ts";
 import type { RouteGroupConfig } from "./interfaces/route-group-config.ts";
 
@@ -56,7 +57,7 @@ export default class Router {
    *
    * @param routes One or many routes, either directly or via group(s).
    *
-   * @returns void
+   * @returns The router instance.
    */
   public add(
     routes:
@@ -67,17 +68,17 @@ export default class Router {
       | Route[]
       | RouteGroup[]
       | (Route | RouteConfig)[],
-  ): void {
+  ): this {
     if (this.isRouteConfig(routes)) {
       this.addRoute(new Route(routes as RouteConfig));
 
-      return;
+      return this;
     }
 
     if (this.isRouteGroupConfig(routes)) {
       this.addRouteGroup(new RouteGroup(routes as RouteGroupConfig));
 
-      return;
+      return this;
     }
 
     if (Array.isArray(routes) && routes.some((r) => this.isRouteConfig(r))) {
@@ -87,42 +88,46 @@ export default class Router {
           : this.addRoute(route as Route)
       );
 
-      return;
+      return this;
     }
 
     if (Array.isArray(routes) && this.isRoute(routes[0])) {
       this.addRoutes(routes as Route[]);
 
-      return;
+      return this;
     }
 
     if (Array.isArray(routes) && this.isRouteGroup(routes[0])) {
       this.addRouteGroups(routes as RouteGroup[]);
 
-      return;
+      return this;
     }
 
     if (Array.isArray(routes)) {
-      return;
+      return this;
     }
 
     if (this.isRoute(routes)) {
       this.addRoute(routes as Route);
 
-      return;
+      return this;
     }
 
     if (this.isRouteGroup(routes)) {
       this.addRouteGroup(routes as RouteGroup);
     }
+
+    return this;
   }
 
   /**
    * Add a single route to the router.
    *
    * @param route A single route definition.
+   *
+   * @returns The router instance.
    */
-  public addRoute(route: Route): void {
+  public addRoute(route: Route): this {
     let config = route.config.method;
 
     if (!config) {
@@ -136,41 +141,217 @@ export default class Router {
         this.trees.get(method)!.add(route);
       });
 
-      return;
+      return this;
     }
 
     this.createTreeForMethod(config);
 
     this.trees.get(config)!.add(route);
+
+    return this;
   }
 
   /**
    * Add one or more routes to the router.
    *
    * @param routes One or more route definitions.
+   *
+   * @returns The router instance.
    */
-  public addRoutes(routes: Route[]): void {
+  public addRoutes(routes: Route[]): this {
     routes.forEach((route) => this.addRoute(route));
+
+    return this;
   }
 
   /**
    * Add a single route group to the router.
    *
    * @param group A single group route definition.
+   *
+   * @returns The router instance.
    */
-  public addRouteGroup(group: RouteGroup): void {
+  public addRouteGroup(group: RouteGroup): this {
     const { routes } = group;
 
     this.addRoutes(routes);
+
+    return this;
   }
 
   /**
    * Add one or more route groups to the router.
    *
    * @param groups One or more route definitions.
+   *
+   * @returns The router instance.
    */
-  public addRouteGroups(groups: RouteGroup[]): void {
+  public addRouteGroups(groups: RouteGroup[]): this {
     groups.forEach((group) => this.addRouteGroup(group));
+
+    return this;
+  }
+
+  /**
+   * Add a new GET route to the router.
+   *
+   * @param pathname The assigned URL pattern for the route.
+   * @param handler The handler function when processing the route.
+   * @param config Optional route configuration.
+   *
+   * @returns The router instance.
+   */
+  public get(
+    pathname: string,
+    handler: RouteHandler,
+    config?: Partial<RouteConfig>,
+  ): this {
+    this.createTreeForMethod(HttpMethod.GET);
+
+    this.trees.get(HttpMethod.GET)!.add(
+      new Route({
+        ...config,
+        pathname,
+        handler,
+      }),
+    );
+
+    return this;
+  }
+
+  /**
+   * Add a new POST route to the router.
+   *
+   * @param pathname The assigned URL pattern for the route.
+   * @param handler The handler function when processing the route.
+   * @param config Optional route configuration.
+   *
+   * @returns The router instance.
+   */
+  public post(
+    pathname: string,
+    handler: RouteHandler,
+    config?: Partial<RouteConfig>,
+  ): this {
+    this.createTreeForMethod(HttpMethod.POST);
+
+    this.trees.get(HttpMethod.POST)!.add(
+      new Route({
+        ...config,
+        pathname,
+        handler,
+      }),
+    );
+
+    return this;
+  }
+
+  /**
+   * Add a new PUT route to the router.
+   *
+   * @param pathname The assigned URL pattern for the route.
+   * @param handler The handler function when processing the route.
+   * @param config Optional route configuration.
+   *
+   * @returns The router instance.
+   */
+  public put(
+    pathname: string,
+    handler: RouteHandler,
+    config?: Partial<RouteConfig>,
+  ): this {
+    this.createTreeForMethod(HttpMethod.PUT);
+
+    this.trees.get(HttpMethod.PUT)!.add(
+      new Route({
+        ...config,
+        pathname,
+        handler,
+      }),
+    );
+
+    return this;
+  }
+
+  /**
+   * Add a new PATCH route to the router.
+   *
+   * @param pathname The assigned URL pattern for the route.
+   * @param handler The handler function when processing the route.
+   * @param config Optional route configuration.
+   *
+   * @returns The router instance.
+   */
+  public patch(
+    pathname: string,
+    handler: RouteHandler,
+    config?: Partial<RouteConfig>,
+  ): this {
+    this.createTreeForMethod(HttpMethod.PATCH);
+
+    this.trees.get(HttpMethod.PATCH)!.add(
+      new Route({
+        ...config,
+        pathname,
+        handler,
+      }),
+    );
+
+    return this;
+  }
+
+  /**
+   * Add a new DELETE route to the router.
+   *
+   * @param pathname The assigned URL pattern for the route.
+   * @param handler The handler function when processing the route.
+   * @param config Optional route configuration.
+   *
+   * @returns The router instance.
+   */
+  public delete(
+    pathname: string,
+    handler: RouteHandler,
+    config?: Partial<RouteConfig>,
+  ): this {
+    this.createTreeForMethod(HttpMethod.DELETE);
+
+    this.trees.get(HttpMethod.DELETE)!.add(
+      new Route({
+        ...config,
+        pathname,
+        handler,
+      }),
+    );
+
+    return this;
+  }
+
+  /**
+   * Add a new OPTIONS route to the router.
+   *
+   * @param pathname The assigned URL pattern for the route.
+   * @param handler The handler function when processing the route.
+   * @param config Optional route configuration.
+   *
+   * @returns The router instance.
+   */
+  public options(
+    pathname: string,
+    handler: RouteHandler,
+    config?: Partial<RouteConfig>,
+  ): this {
+    this.createTreeForMethod(HttpMethod.OPTIONS);
+
+    this.trees.get(HttpMethod.OPTIONS)!.add(
+      new Route({
+        ...config,
+        pathname,
+        handler,
+      }),
+    );
+
+    return this;
   }
 
   /**
@@ -191,7 +372,7 @@ export default class Router {
    * @returns An unknown data type.
    * @throws {NotFound | TypeError}
    */
-  public handleRouting(
+  private handleRouting(
     context: Context,
     next: CallableFunction,
   ): Promise<unknown> {
@@ -247,7 +428,7 @@ export default class Router {
    *
    * @returns The default router options.
    */
-  public initialiseDefaultConfig(): Config {
+  private initialiseDefaultConfig(): Config {
     return {
       throwNotFound: true,
       routes: [],
