@@ -1,4 +1,4 @@
-import type { HttpMethod, Middleware } from "@raptor/kernel";
+import type { HttpMethod, Middleware } from "@raptor/types";
 
 import type { RouteHandler } from "./route-handler.ts";
 

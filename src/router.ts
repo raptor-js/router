@@ -1,9 +1,5 @@
-import {
-  type Context,
-  HttpMethod,
-  type Middleware,
-  NotFound,
-} from "@raptor/kernel";
+import { NotFound } from "@raptor/kernel";
+import { type Context, HttpMethod, type Middleware } from "@raptor/types";
 
 import Tree from "./tree.ts";
 import Route from "./route.ts";
@@ -361,6 +357,24 @@ export default class Router {
     return (context: Context, next: CallableFunction) => {
       return this.handleRouting(context, next);
     };
+  }
+
+  /**
+   * Get defined route trees for router.
+   *
+   * @returns The route tree definitions.
+   */
+  public getRouteTrees(): Map<HttpMethod, Tree> {
+    return this.trees;
+  }
+
+  /**
+   * Get router cache.
+   *
+   * @returns The router cache.
+   */
+  public getCache(): Map<string, TreeMatchResult> {
+    return this.cache;
   }
 
   /**

@@ -1,5 +1,5 @@
 import type Route from "./route.ts";
-import type { Middleware } from "@raptor/kernel";
+import type { Middleware } from "@raptor/types";
 import type { TreeNode } from "./interfaces/tree-node.ts";
 import type { TreeMatchResult } from "./interfaces/tree-match-result.ts";
 

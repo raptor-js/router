@@ -1,5 +1,6 @@
+import { Kernel } from "@raptor/kernel";
 import { assertEquals } from "@std/assert";
-import { type Context, HttpMethod, Kernel } from "@raptor/kernel";
+import { type Context, HttpMethod } from "@raptor/types";
 
 import Route from "./route.ts";
 import Router from "./router.ts";

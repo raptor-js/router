@@ -1,6 +1,6 @@
 {
   "name": "@raptor/router",
-  "version": "0.22.0",
+  "version": "0.23.0",
   "exports": "./mod.ts",
   "publish": {
     "exclude": [
@@ -26,7 +26,8 @@
   },
   "lock": true,
   "imports": {
-    "@raptor/kernel": "jsr:@raptor/kernel@^0.20.0",
+    "@raptor/kernel": "jsr:@raptor/kernel@^0.24.0",
+    "@raptor/types": "jsr:@raptor/types@^0.1.1",
     "@std/assert": "jsr:@std/assert@^1.0.19"
   }
 }

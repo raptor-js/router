@@ -1,4 +1,4 @@
-import type { Middleware } from "@raptor/kernel";
+import type { Middleware } from "@raptor/types";
 
 import type Route from "../route.ts";
 import type { RouteConfig } from "./route-config.ts";

@@ -1,4 +1,4 @@
-import type { Middleware } from "@raptor/kernel";
+import type { Middleware } from "@raptor/types";
 import type { RouteHandler } from "../interfaces/route-handler.ts";
 
 /**

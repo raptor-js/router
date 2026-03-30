@@ -1,4 +1,5 @@
-import { HttpMethod } from "@raptor/kernel";
+import { HttpMethod } from "@raptor/types";
+
 import type { Params } from "./interfaces/params.ts";
 import type { RouteConfig } from "./interfaces/route-config.ts";
 
