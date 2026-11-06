@@ -14,5 +14,18 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Publish to JSR
-        run: npx jsr publish --no-check
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          registry-url: https://registry.npmjs.org
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Publish to npm
+        run: |
+          if npm view "$(npm pkg get name | tr -d '"')@$(npm pkg get version | tr -d '"')" version > /dev/null 2>&1; then
+            echo "This version is already on npm."
+          else
+            npm publish --access public --provenance
+          fi

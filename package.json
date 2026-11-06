@@ -1,0 +1,41 @@
+{
+  "name": "@raptor-js/router",
+  "version": "0.24.0",
+  "description": "The Raptor router: routes, route groups and route params.",
+  "license": "MIT",
+  "homepage": "https://raptorjs.com",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/raptor-js/router.git"
+  },
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/mod.d.ts",
+      "default": "./dist/mod.js"
+    }
+  },
+  "files": [
+    "dist",
+    "!dist/**/*.test.*"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "typecheck": "tsc --noEmit",
+    "lint": "biome check",
+    "format": "biome check --write",
+    "test": "node --test 'src/**/*.test.ts'",
+    "test:watch": "node --test --watch 'src/**/*.test.ts'",
+    "test:coverage": "node --test --experimental-test-coverage 'src/**/*.test.ts'",
+    "prepack": "npm run build"
+  },
+  "dependencies": {
+    "@raptor-js/kernel": "^0.28.0",
+    "@raptor-js/types": "^0.4.0"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.6.6",
+    "@types/node": "^26.6.6",
+    "typescript": "^7.0.2"
+  }
+}

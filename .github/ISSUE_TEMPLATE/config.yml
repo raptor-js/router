@@ -1,8 +1,8 @@
 blank_issues_enabled: false
 contact_links:
-  - name: JSR Package Page
-    url: https://jsr.io/@raptor/router
-    about: View the package on JSR
+  - name: npm Package Page
+    url: https://www.npmjs.com/package/@raptor-js/router
+    about: View the package on npm
   - name: Security Issue
     url: https://github.com/raptor-js/router/security/advisories/new
     about: Report a security vulnerability privately

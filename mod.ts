@@ -14,6 +14,9 @@ export type { RouteGroupConfig } from "./src/interfaces/route-group-config.ts";
 
 export type { Config } from "./src/config.ts";
 
+// Pulls in the global Request.params type for anyone importing this module.
+export type {} from "./src/types.ts";
+
 export { Route, RouteGroup, Router };
 
 export default helper;

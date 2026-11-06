@@ -1,4 +1,4 @@
-import type { Context } from "@raptor/types";
+import type { Context } from "@raptor-js/types";
 
 /**
  * Handler function that processes a request and returns a response.

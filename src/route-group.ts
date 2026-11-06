@@ -69,15 +69,12 @@ export default class RouteGroup {
       const normalised = Array.isArray(middleware) ? middleware : [middleware];
 
       const routeMiddleware = route.config.middleware
-        ? (Array.isArray(route.config.middleware)
+        ? Array.isArray(route.config.middleware)
           ? route.config.middleware
-          : [route.config.middleware])
+          : [route.config.middleware]
         : [];
 
-      route.config.middleware = [
-        ...normalised,
-        ...routeMiddleware,
-      ];
+      route.config.middleware = [...normalised, ...routeMiddleware];
     }
 
     this.routes.push(route);
@@ -90,7 +87,7 @@ export default class RouteGroup {
    */
   public addRoutes(routes: (RouteConfig | Route)[]) {
     routes.forEach((route) =>
-      this.addRoute(this.isRouteConfig(route) ? new Route(route) : route)
+      this.addRoute(this.isRouteConfig(route) ? new Route(route) : route),
     );
   }
 
@@ -101,9 +98,7 @@ export default class RouteGroup {
    *
    * @returns A boolean indicating whether it is route config or not.
    */
-  private isRouteConfig(
-    item: RouteConfig | Route,
-  ): item is RouteConfig {
+  private isRouteConfig(item: RouteConfig | Route): item is RouteConfig {
     return "pathname" in item && !("config" in item);
   }
 }

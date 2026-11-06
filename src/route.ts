@@ -1,4 +1,4 @@
-import { HttpMethod } from "@raptor/types";
+import { HttpMethod } from "@raptor-js/types";
 
 import type { Params } from "./interfaces/params.ts";
 import type { RouteConfig } from "./interfaces/route-config.ts";
@@ -87,8 +87,9 @@ export default class Route {
    * @returns Boolean indicating whether the route has dynamic segments.
    */
   private hasDynamicSegments(): boolean {
-    return this.config.pathname.includes(":") ||
-      this.config.pathname.includes("*");
+    return (
+      this.config.pathname.includes(":") || this.config.pathname.includes("*")
+    );
   }
 
   /**

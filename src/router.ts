@@ -1,5 +1,5 @@
-import { NotFound } from "@raptor/kernel";
-import { type Context, HttpMethod, type Middleware } from "@raptor/types";
+import { NotFound } from "@raptor-js/kernel";
+import { type Context, HttpMethod, type Middleware } from "@raptor-js/types";
 
 import Tree from "./tree.ts";
 import Route from "./route.ts";
@@ -81,7 +81,7 @@ export default class Router {
       routes.forEach((route) =>
         this.isRouteConfig(route)
           ? this.addRoute(new Route(route as RouteConfig))
-          : this.addRoute(route as Route)
+          : this.addRoute(route as Route),
       );
 
       return this;
@@ -529,11 +529,7 @@ export default class Router {
       return false;
     }
 
-    return (
-      "pathname" in item &&
-      !("config" in item) &&
-      !("routes" in item)
-    );
+    return "pathname" in item && !("config" in item) && !("routes" in item);
   }
 
   /**
@@ -557,11 +553,7 @@ export default class Router {
       return false;
     }
 
-    return (
-      "routes" in item &&
-      !("pathname" in item) &&
-      !("config" in item)
-    );
+    return "routes" in item && !("pathname" in item) && !("config" in item);
   }
 
   /**

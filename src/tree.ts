@@ -1,5 +1,5 @@
 import type Route from "./route.ts";
-import type { Middleware } from "@raptor/types";
+import type { Middleware } from "@raptor-js/types";
 import type { TreeNode } from "./interfaces/tree-node.ts";
 import type { TreeMatchResult } from "./interfaces/tree-match-result.ts";
 
@@ -61,9 +61,7 @@ export default class Tree {
 
     node.handler = route.config.handler;
 
-    node.middleware = this.normaliseMiddleware(
-      route.config.middleware,
-    );
+    node.middleware = this.normaliseMiddleware(route.config.middleware);
   }
 
   /**
@@ -139,7 +137,7 @@ export default class Tree {
     return !middleware
       ? []
       : Array.isArray(middleware)
-      ? middleware
-      : [middleware];
+        ? middleware
+        : [middleware];
   }
 }

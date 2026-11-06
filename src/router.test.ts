@@ -1,6 +1,7 @@
-import { Kernel } from "@raptor/kernel";
-import { assertEquals } from "@std/assert";
-import { type Context, HttpMethod } from "@raptor/types";
+import { Kernel } from "@raptor-js/kernel";
+import assert from "node:assert/strict";
+import { test } from "node:test";
+import { type Context, HttpMethod } from "@raptor-js/types";
 
 import Route from "./route.ts";
 import Router from "./router.ts";
@@ -8,7 +9,7 @@ import RouteGroup from "./route-group.ts";
 
 const APP_URL = "http://localhost:8000";
 
-Deno.test("test router accepts new route", async () => {
+test("test router accepts new route", async () => {
   const kernel = new Kernel();
   const router = new Router();
 
@@ -23,15 +24,13 @@ Deno.test("test router accepts new route", async () => {
 
   kernel.add(router.handle);
 
-  const response = await kernel.respond(
-    new Request(`${APP_URL}/test-route`),
-  );
+  const response = await kernel.respond(new Request(`${APP_URL}/test-route`));
 
-  assertEquals(response.status, 200);
-  assertEquals(await response.json(), { success: true });
+  assert.deepStrictEqual(response.status, 200);
+  assert.deepStrictEqual(await response.json(), { success: true });
 });
 
-Deno.test("test router accepts new route from config", async () => {
+test("test router accepts new route from config", async () => {
   const kernel = new Kernel();
   const router = new Router();
 
@@ -44,15 +43,13 @@ Deno.test("test router accepts new route from config", async () => {
 
   kernel.add(router.handle);
 
-  const response = await kernel.respond(
-    new Request(`${APP_URL}/test-route`),
-  );
+  const response = await kernel.respond(new Request(`${APP_URL}/test-route`));
 
-  assertEquals(response.status, 200);
-  assertEquals(await response.json(), { success: true });
+  assert.deepStrictEqual(response.status, 200);
+  assert.deepStrictEqual(await response.json(), { success: true });
 });
 
-Deno.test("test router accepts new route from ergonomic methods", async () => {
+test("test router accepts new route from ergonomic methods", async () => {
   const kernel = new Kernel();
   const router = new Router();
 
@@ -78,9 +75,7 @@ Deno.test("test router accepts new route from ergonomic methods", async () => {
 
   kernel.add(router.handle);
 
-  const getResponse = await kernel.respond(
-    new Request(`${APP_URL}/get-route`),
-  );
+  const getResponse = await kernel.respond(new Request(`${APP_URL}/get-route`));
 
   const postResponse = await kernel.respond(
     new Request(`${APP_URL}/post-route`, {
@@ -106,23 +101,23 @@ Deno.test("test router accepts new route from ergonomic methods", async () => {
     }),
   );
 
-  assertEquals(getResponse.status, 200);
-  assertEquals(await getResponse.json(), { success: true });
+  assert.deepStrictEqual(getResponse.status, 200);
+  assert.deepStrictEqual(await getResponse.json(), { success: true });
 
-  assertEquals(postResponse.status, 200);
-  assertEquals(await postResponse.json(), { success: true });
+  assert.deepStrictEqual(postResponse.status, 200);
+  assert.deepStrictEqual(await postResponse.json(), { success: true });
 
-  assertEquals(putResponse.status, 200);
-  assertEquals(await putResponse.json(), { success: true });
+  assert.deepStrictEqual(putResponse.status, 200);
+  assert.deepStrictEqual(await putResponse.json(), { success: true });
 
-  assertEquals(patchResponse.status, 200);
-  assertEquals(await patchResponse.json(), { success: true });
+  assert.deepStrictEqual(patchResponse.status, 200);
+  assert.deepStrictEqual(await patchResponse.json(), { success: true });
 
-  assertEquals(deleteResponse.status, 200);
-  assertEquals(await deleteResponse.json(), { success: true });
+  assert.deepStrictEqual(deleteResponse.status, 200);
+  assert.deepStrictEqual(await deleteResponse.json(), { success: true });
 });
 
-Deno.test("test router accepts new route group from config with prefix", async () => {
+test("test router accepts new route group from config with prefix", async () => {
   const kernel = new Kernel();
   const router = new Router();
 
@@ -144,11 +139,11 @@ Deno.test("test router accepts new route group from config with prefix", async (
     new Request(`${APP_URL}/api/test-route`),
   );
 
-  assertEquals(response.status, 200);
-  assertEquals(await response.json(), { success: true });
+  assert.deepStrictEqual(response.status, 200);
+  assert.deepStrictEqual(await response.json(), { success: true });
 });
 
-Deno.test("test router accepts new route group from config with middleware", async () => {
+test("test router accepts new route group from config with middleware", async () => {
   const kernel = new Kernel();
   const router = new Router();
 
@@ -175,10 +170,13 @@ Deno.test("test router accepts new route group from config with middleware", asy
     new Request(`${APP_URL}/api/test-route`),
   );
 
-  assertEquals(response.headers.get("Content-Type"), "application/hal+json");
+  assert.deepStrictEqual(
+    response.headers.get("Content-Type"),
+    "application/hal+json",
+  );
 });
 
-Deno.test("test router accepts new route group from config with multiple middleware", async () => {
+test("test router accepts new route group from config with multiple middleware", async () => {
   const kernel = new Kernel();
   const router = new Router();
 
@@ -212,10 +210,13 @@ Deno.test("test router accepts new route group from config with multiple middlew
     new Request(`${APP_URL}/api/test-route`),
   );
 
-  assertEquals(response.headers.get("Content-Type"), "application/custom+json");
+  assert.deepStrictEqual(
+    response.headers.get("Content-Type"),
+    "application/custom+json",
+  );
 });
 
-Deno.test("test router accepts routes via constructor config", async () => {
+test("test router accepts routes via constructor config", async () => {
   const kernel = new Kernel();
 
   const router = new Router({
@@ -231,15 +232,13 @@ Deno.test("test router accepts routes via constructor config", async () => {
 
   kernel.add(router.handle);
 
-  const response = await kernel.respond(
-    new Request(`${APP_URL}/test-route`),
-  );
+  const response = await kernel.respond(new Request(`${APP_URL}/test-route`));
 
-  assertEquals(response.status, 200);
-  assertEquals(await response.json(), { success: true });
+  assert.deepStrictEqual(response.status, 200);
+  assert.deepStrictEqual(await response.json(), { success: true });
 });
 
-Deno.test("test router accepts route group with routes pre-loaded via config", async () => {
+test("test router accepts route group with routes pre-loaded via config", async () => {
   const kernel = new Kernel();
   const router = new Router();
 
@@ -264,11 +263,11 @@ Deno.test("test router accepts route group with routes pre-loaded via config", a
     new Request(`${APP_URL}/api/test-route`),
   );
 
-  assertEquals(response.status, 200);
-  assertEquals(await response.json(), { success: true });
+  assert.deepStrictEqual(response.status, 200);
+  assert.deepStrictEqual(await response.json(), { success: true });
 });
 
-Deno.test("test router accepts mixed array of route configs and instances", async () => {
+test("test router accepts mixed array of route configs and instances", async () => {
   const kernel = new Kernel();
   const router = new Router();
 
@@ -297,11 +296,11 @@ Deno.test("test router accepts mixed array of route configs and instances", asyn
     new Request(`${APP_URL}/test-route-2`),
   );
 
-  assertEquals(await response1.json(), { route: 1 });
-  assertEquals(await response2.json(), { route: 2 });
+  assert.deepStrictEqual(await response1.json(), { route: 1 });
+  assert.deepStrictEqual(await response2.json(), { route: 2 });
 });
 
-Deno.test("test router accepts new routes", async () => {
+test("test router accepts new routes", async () => {
   const kernel = new Kernel();
   const router = new Router();
 
@@ -331,11 +330,11 @@ Deno.test("test router accepts new routes", async () => {
     new Request(`${APP_URL}/test-route-2`),
   );
 
-  assertEquals(await response1.json(), { route: 1 });
-  assertEquals(await response2.json(), { route: 2 });
+  assert.deepStrictEqual(await response1.json(), { route: 1 });
+  assert.deepStrictEqual(await response2.json(), { route: 2 });
 });
 
-Deno.test("test route influences context response", async () => {
+test("test route influences context response", async () => {
   const kernel = new Kernel();
 
   const router = new Router();
@@ -355,18 +354,14 @@ Deno.test("test route influences context response", async () => {
 
   kernel.add(router.handle);
 
-  const response = await kernel.respond(
-    new Request(
-      `${APP_URL}/test-route`,
-    ),
-  );
+  const response = await kernel.respond(new Request(`${APP_URL}/test-route`));
 
   const body = await response.json();
 
-  assertEquals(body, { influence: true });
+  assert.deepStrictEqual(body, { influence: true });
 });
 
-Deno.test("test unknown route throws not found", async () => {
+test("test unknown route throws not found", async () => {
   const kernel = new Kernel();
 
   const router = new Router();
@@ -387,15 +382,13 @@ Deno.test("test unknown route throws not found", async () => {
   kernel.add(router.handle);
 
   const response = await kernel.respond(
-    new Request(
-      `${APP_URL}/another-route`,
-    ),
+    new Request(`${APP_URL}/another-route`),
   );
 
-  assertEquals(response.status, 404);
+  assert.deepStrictEqual(response.status, 404);
 });
 
-Deno.test("test context contains route params", async () => {
+test("test context contains route params", async () => {
   const kernel = new Kernel();
 
   const router = new Router();
@@ -417,16 +410,12 @@ Deno.test("test context contains route params", async () => {
 
   kernel.add(router.handle);
 
-  const response = await kernel.respond(
-    new Request(
-      `${APP_URL}/test/1`,
-    ),
-  );
+  const response = await kernel.respond(new Request(`${APP_URL}/test/1`));
 
-  assertEquals(await response.json(), { id: "1" });
+  assert.deepStrictEqual(await response.json(), { id: "1" });
 });
 
-Deno.test("test static route lookup performance", async () => {
+test("test static route lookup performance", async () => {
   const kernel = new Kernel();
   const router = new Router();
 
@@ -441,14 +430,12 @@ Deno.test("test static route lookup performance", async () => {
 
   kernel.add(router.handle);
 
-  const response = await kernel.respond(
-    new Request(`${APP_URL}/static`),
-  );
+  const response = await kernel.respond(new Request(`${APP_URL}/static`));
 
-  assertEquals(await response.json(), { type: "static" });
+  assert.deepStrictEqual(await response.json(), { type: "static" });
 });
 
-Deno.test("test dynamic route with params", async () => {
+test("test dynamic route with params", async () => {
   const kernel = new Kernel();
   const router = new Router();
 
@@ -470,23 +457,20 @@ Deno.test("test dynamic route with params", async () => {
     new Request(`${APP_URL}/users/123/posts/456`),
   );
 
-  assertEquals(await response.json(), {
+  assert.deepStrictEqual(await response.json(), {
     userId: "123",
     postId: "456",
   });
 });
 
-Deno.test("test route with multiple HTTP methods", async () => {
+test("test route with multiple HTTP methods", async () => {
   const kernel = new Kernel();
   const router = new Router();
 
   const route = new Route({
     name: "multi.method",
     pathname: "/api/resource",
-    method: [
-      HttpMethod.GET,
-      HttpMethod.POST,
-    ],
+    method: [HttpMethod.GET, HttpMethod.POST],
     handler: (context: Context) => ({
       method: context.request.method,
     }),
@@ -500,22 +484,22 @@ Deno.test("test route with multiple HTTP methods", async () => {
     new Request(`${APP_URL}/api/resource`, { method: "GET" }),
   );
 
-  assertEquals(await getResponse.json(), { method: "GET" });
+  assert.deepStrictEqual(await getResponse.json(), { method: "GET" });
 
   const postResponse = await kernel.respond(
     new Request(`${APP_URL}/api/resource`, { method: "POST" }),
   );
 
-  assertEquals(await postResponse.json(), { method: "POST" });
+  assert.deepStrictEqual(await postResponse.json(), { method: "POST" });
 
   const putResponse = await kernel.respond(
     new Request(`${APP_URL}/api/resource`, { method: "PUT" }),
   );
 
-  assertEquals(putResponse.status, 404);
+  assert.deepStrictEqual(putResponse.status, 404);
 });
 
-Deno.test("test wildcard route", async () => {
+test("test wildcard route", async () => {
   const kernel = new Kernel();
   const router = new Router();
 
@@ -533,10 +517,10 @@ Deno.test("test wildcard route", async () => {
     new Request(`${APP_URL}/wildcard/hello`),
   );
 
-  assertEquals(await response.json(), { matched: "wildcard" });
+  assert.deepStrictEqual(await response.json(), { matched: "wildcard" });
 });
 
-Deno.test("test route middleware", async () => {
+test("test route middleware", async () => {
   const kernel = new Kernel();
   const router = new Router();
 
@@ -558,14 +542,15 @@ Deno.test("test route middleware", async () => {
 
   kernel.add(router.handle);
 
-  const response = await kernel.respond(
-    new Request(`${APP_URL}/test`),
-  );
+  const response = await kernel.respond(new Request(`${APP_URL}/test`));
 
-  assertEquals(response.headers.get("Content-Type"), "application/hal+json");
+  assert.deepStrictEqual(
+    response.headers.get("Content-Type"),
+    "application/hal+json",
+  );
 });
 
-Deno.test("test route group without middleware", async () => {
+test("test route group without middleware", async () => {
   const kernel = new Kernel();
   const router = new Router();
 
@@ -587,14 +572,12 @@ Deno.test("test route group without middleware", async () => {
 
   kernel.add(router.handle);
 
-  const response = await kernel.respond(
-    new Request(`${APP_URL}/api`),
-  );
+  const response = await kernel.respond(new Request(`${APP_URL}/api`));
 
-  assertEquals(await response.json(), { success: true });
+  assert.deepStrictEqual(await response.json(), { success: true });
 });
 
-Deno.test("test route group with one middleware", async () => {
+test("test route group with one middleware", async () => {
   const kernel = new Kernel();
   const router = new Router();
 
@@ -621,14 +604,15 @@ Deno.test("test route group with one middleware", async () => {
 
   kernel.add(router.handle);
 
-  const response = await kernel.respond(
-    new Request(`${APP_URL}/api`),
-  );
+  const response = await kernel.respond(new Request(`${APP_URL}/api`));
 
-  assertEquals(response.headers.get("Content-Type"), "application/hal+json");
+  assert.deepStrictEqual(
+    response.headers.get("Content-Type"),
+    "application/hal+json",
+  );
 });
 
-Deno.test("test route group with multiple middleware", async () => {
+test("test route group with multiple middleware", async () => {
   const kernel = new Kernel();
   const router = new Router();
 
@@ -662,9 +646,10 @@ Deno.test("test route group with multiple middleware", async () => {
 
   kernel.add(router.handle);
 
-  const response = await kernel.respond(
-    new Request(`${APP_URL}/api`),
-  );
+  const response = await kernel.respond(new Request(`${APP_URL}/api`));
 
-  assertEquals(response.headers.get("Content-Type"), "application/custom+json");
+  assert.deepStrictEqual(
+    response.headers.get("Content-Type"),
+    "application/custom+json",
+  );
 });

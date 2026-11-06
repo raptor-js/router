@@ -10,3 +10,6 @@ node_modules
 
 # Ignore example directories.
 example
+
+# Ignore build output
+dist

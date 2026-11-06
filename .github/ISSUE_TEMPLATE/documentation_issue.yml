@@ -28,7 +28,7 @@ body:
     attributes:
       label: Documentation Location
       description: Where is this documentation located?
-      placeholder: "e.g., README.md, API docs for Kernel, jsr.io page"
+      placeholder: "e.g., README.md, API docs for Kernel, npm page"
     validations:
       required: true
 

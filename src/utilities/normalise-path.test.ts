@@ -1,27 +1,28 @@
-import { assertEquals } from "@std/assert";
+import assert from "node:assert/strict";
+import { test } from "node:test";
 
 import normalisePath from "./normalise-path.ts";
 
-Deno.test("test normalise paths removes trailing slash", () => {
+test("test normalise paths removes trailing slash", () => {
   const path = "/api/resource/name/";
 
   const normalised = normalisePath(path);
 
-  assertEquals("/api/resource/name", normalised);
+  assert.deepStrictEqual("/api/resource/name", normalised);
 });
 
-Deno.test("test normalise paths removes double slash", () => {
+test("test normalise paths removes double slash", () => {
   const path = "/api/resource//name";
 
   const normalised = normalisePath(path);
 
-  assertEquals("/api/resource/name", normalised);
+  assert.deepStrictEqual("/api/resource/name", normalised);
 });
 
-Deno.test("test normalise paths retains index route", () => {
+test("test normalise paths retains index route", () => {
   const path = "/";
 
   const normalised = normalisePath(path);
 
-  assertEquals("/", normalised);
+  assert.deepStrictEqual("/", normalised);
 });

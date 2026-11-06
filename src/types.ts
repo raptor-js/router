@@ -1,4 +1,4 @@
-import type { Params } from "@raptor/router";
+import type { Params } from "./interfaces/params.ts";
 
 declare global {
   interface Request {

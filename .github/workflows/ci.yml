@@ -10,16 +10,19 @@ jobs:
       - name: clone repository
         uses: actions/checkout@v4
 
-      - name: install deno
-        uses: denoland/setup-deno@v2
+      - name: install node
+        uses: actions/setup-node@v4
         with:
-          deno-version: ${{ matrix.version }}
+          node-version-file: .nvmrc
 
-      - name: check format
-        run: deno fmt --check
+      - name: install dependencies
+        run: npm ci
 
-      - name: check linting
-        run: deno lint
+      - name: check format and linting
+        run: npm run lint
+
+      - name: check types
+        run: npm run typecheck
 
       - name: run tests
-        run: deno task test
+        run: npm test

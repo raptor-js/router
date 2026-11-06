@@ -4,9 +4,7 @@
 
 <p align="center">
   <a href="https://github.com/raptor-js/router/actions"><img src="https://github.com/raptor-js/router/workflows/ci/badge.svg" alt="Build Status"></a>
-  <a href="https://jsr.io/@raptor/router"><img src="https://jsr.io/badges/@raptor/router" /></a>
-  <a href="https://jsr.io/@raptor/router score"><img src="https://jsr.io/badges/@raptor/router/score" /></a>
-  <a href="https://jsr.io/@raptor"><img src="https://jsr.io/badges/@raptor" alt="" /></a>
+  <a href="https://www.npmjs.com/package/@raptor-js/router"><img src="https://img.shields.io/npm/v/@raptor-js/router" alt="npm version" /></a>
 </p>
 
 ## Raptor Router
